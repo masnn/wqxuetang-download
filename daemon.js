@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 var jwt = require('jsonwebtoken');
+const os = require('os');
 const tough = require('tough-cookie');
 const axiosCookieJarSupport = require('axios-cookiejar-support').default;
 axiosCookieJarSupport(axios);
@@ -30,7 +31,7 @@ async function daemon() {
             p = p.join('');
             if (p.endsWith('/') || p == '') p = p + 'index.html';
             let tgt = path.resolve(__dirname, 'target', p);
-            let f = tgt.split('/').slice(0, -1).join('/');
+            let f = tgt.split('/').slice(0, -1).join(os.platform().startsWith('win') ? '\\' : '/');
             if (!fs.existsSync(f)) fs.mkdirSync(f, { recursive: true });
             if (t.responseType == 'stream')
                 res.data.pipe(fs.createWriteStream(tgt));

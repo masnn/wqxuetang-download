@@ -18,8 +18,10 @@ async function daemon() {
         let t = queue.shift();
         let res;
         try {
+            if (!t.url) t.url = t.urlgen(t);
             res = await axios(t);
         } catch (e) {
+            if (t.urlgen) t.url = null;
             queue.push(t);
             await sleep(500);
             continue;
@@ -74,7 +76,8 @@ async function get(bid) {
                     for (let i = 1; i <= res.data.data.pages; i++) {
                         queue.push({
                             method: 'GET',
-                            url: `https://lib-nuanxin.wqxuetang.com/page/img/${bid}/${i}?k=${key(aesK, bid, i)}`,
+                            aesK, bid, i,
+                            urlgen: t => `https://lib-nuanxin.wqxuetang.com/page/img/${bid}/${i}?k=${key(t.aesK, t.bid, t.i)}`,
                             process: r => {
                                 r.path = `/${res.data.data.title}/${i}.jpeg`;
                                 return r;

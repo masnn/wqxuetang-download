@@ -14,7 +14,14 @@ async function daemon() {
         console.log(queue.length);
         while (!queue.length) await sleep(100);
         let t = queue.shift();
-        let res = await axios(t);
+        let res;
+        try {
+            res = await axios(t);
+        } catch (e) {
+            queue.push(t);
+            await sleep(500);
+            continue;
+        }
         if (t.process) res = t.process(res);
         let p = res.path || res.request.path;
         if (p != '::ignore') {
